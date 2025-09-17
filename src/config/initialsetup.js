@@ -20,14 +20,14 @@ export async function createUser() {
     await Promise.all([
       userRepository.save(
         userRepository.create({
-          email: "admin@prueba.com",
-          password: await encryptPassword("admin123"),
+          email: "usuario1@gmail.com",
+          password: await encryptPassword("pass1"),
         })
       ),
       userRepository.save(
         userRepository.create({
-          email: "demo1@gmail.com",
-          password: await encryptPassword("demo1"),
+          email: "usuario2@gmail.com",
+          password: await encryptPassword("pass2"),
         })
       ),
     ]);
