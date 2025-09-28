@@ -92,9 +92,7 @@ export async function updateUser(req, res) {
     const id = req.user.sub;
     if (!changes || Object.keys(changes).length === 0) {
       return handleErrorClient(
-        res,
-        400,
-        "Datos para actualizar son requeridos"
+        res, 400, "Datos para actualizar son requeridos"
       );
     }
     const user = await userRepository.findOneBy({ id });
