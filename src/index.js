@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import { connectDB } from "./config/configDb.js";
 import { routerApi } from "./routes/index.routes.js";
-import { createUser } from "./config/initialsetup.js";
+import { createUser } from "./config/initialSetup.js";
 import { HOST,PORT } from "./config/configEnv.js";
 import authRoutes from "./routes/auth.routes.js";
 import profileRoutes from "./routes/profile.routes.js";
@@ -24,10 +24,8 @@ connectDB()
   .then(async () => {
     // Carga todas las rutas de la aplicación
     routerApi(app);
-
     // Levanta el servidor Express
     await createUser();
-    app.use("/api", routerApi);
     
     app.listen(PORT, () => {
       console.log(`Servidor iniciado en http://${HOST}:${PORT}/api`);
