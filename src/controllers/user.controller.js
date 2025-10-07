@@ -7,8 +7,6 @@ import {
   deleteNota,
 } from "../services/notas.services.js";
 */
-import {
-  handleSuccess, handleErrorClient } from "../Handlers/responseHandlers.js";
 /*
 export class NotasController {
   async getAllNotas(req, res) {
@@ -86,20 +84,34 @@ export class NotasController {
   }
 }
 */
+import { handleSuccess, handleErrorClient } from "../Handlers/responseHandlers.js";
+
 export async function updateUser(req, res) {
   try {
     const changes = req.body;
     const id = req.user.sub;
+
     if (!changes || Object.keys(changes).length === 0) {
       return handleErrorClient(
-        res, 400, "Datos para actualizar son requeridos"
+        res,
+        400,
+        "Datos para actualizar son requeridos"
       );
     }
+
+    // Validar solo los campos presentes
+    const { error } = userValidation.validate(changes, {
+      presence: "optional",
+    });
+    if (error) {
+      return handleErrorClient(res, 400, "Datos inválidos", error.message);
+    }
+
     const user = await userRepository.findOneBy({ id });
     if (!user) {
       return handleErrorClient(res, 404, "Usuario no encontrado");
     }
-    // Solo permitir actualizar email y password
+
     if (changes.email) user.email = changes.email;
     if (changes.password) {
       const bcrypt = await import("bcrypt");
