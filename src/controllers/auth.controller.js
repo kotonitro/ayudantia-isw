@@ -1,15 +1,16 @@
 import { loginUser } from "../services/auth.service.js";
 import { createUser } from "../services/user.service.js";
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
+import { usuarioValidation } from "../validations/Auth.validation.js";
 
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
     
-    if (!email || !password) {
-      return handleErrorClient(res, 400, "Email y contraseña son requeridos");
+    const { error } = usuarioValidation.validate({ email , password });
+    if (error) {
+      return handleErrorClient(res, 400, "Parametros no validos", error.message);
     }
-    
     const data = await loginUser(email, password);
     handleSuccess(res, 200, "Login exitoso", data);
   } catch (error) {
