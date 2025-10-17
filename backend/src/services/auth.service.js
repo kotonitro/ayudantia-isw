@@ -8,7 +8,7 @@ export async function loginUser(email, password) {
     throw new Error("Credenciales incorrectas");
   }
 
-  const isMatch = bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error("Credenciales incorrectas");
   }

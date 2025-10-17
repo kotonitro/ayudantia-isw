@@ -1,15 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log({ email, password });
-    };    return (
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
+            // la API envuelve la respuesta en { message, data, status }
+            const { token, user } = response.data.data || {};
+            // el contexto espera (token, user)
+            login(token, user);
+            console.log('Inicio de sesión exitoso:', user);
+            // la ruta en el router está definida como '/home' (minúsculas)
+            navigate('/home');
+        } catch (error) {
+            console.error('Error al iniciar sesión:', error);
+        }
+    };
+    return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md transform transition-all hover:scale-105">
                 <form className="space-y-6" onSubmit={handleSubmit}>
@@ -52,6 +68,13 @@ const Login = () => {
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
                     >
                         Iniciar sesión
+                    </button>
+                    <button 
+                        type="button" 
+                        onClick={() => navigate('/register')}
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
+                    >
+                        Registrarse
                     </button>
                 </form>
             </div>
