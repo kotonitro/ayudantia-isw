@@ -9,29 +9,24 @@ export function getPublicProfile(req, res) {
   });
 }
 
-export function getPrivateProfile(req, res) {
-  const user = req.user;
-  const password = user.password;
-  // Para devolver la contraseña (hasheada) buscamos el usuario en la DB
-  const userPayload = req.user;
-  const userId = userPayload.sub;
-
-  // importamos userRepository dinámicamente para evitar ciclos de import
-  import("../services/user.service.js").then(({ userRepository }) => {
-    userRepository.findOneBy({ id: userId }).then((userFromDb) => {
-      if (!userFromDb) {
-        return res.status(404).json({ message: "Usuario no encontrado" });
-      }
-      handleSuccess(res, 200, "Perfil privado obtenido exitosamente", {
-        message: `¡Hola, ${userFromDb.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
-        userData: userFromDb,
-      });
-    }).catch((err) => {
-      return res.status(500).json({ message: "Error al obtener usuario", error: err.message });
+export async function getPrivateProfile(req, res) {
+  try {
+    const userId = req.user?.sub;
+    if (!userId) {
+      return res.status(400).json({ message: 'Token inválido' });
+    }
+    const userFromDb = await userRepository.findOneBy({ id: userId });
+    if (!userFromDb) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    // Devolver el usuario completo incluyendo el hash de la contraseña
+    handleSuccess(res, 200, 'Perfil privado obtenido exitosamente', {
+      message: `¡Hola, ${userFromDb.email}! Este es tu perfil privado. Solo tú puedes verlo.`,
+      userData: userFromDb,
     });
-  }).catch((err) => {
-    return res.status(500).json({ message: "Error interno", error: err.message });
-  });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error al obtener perfil', error: error.message });
+  }
 }
 
 

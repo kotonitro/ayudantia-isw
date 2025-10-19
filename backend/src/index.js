@@ -11,17 +11,6 @@ import profileRoutes from "./routes/profile.routes.js";
 
 const app = express();
 app.use(express.json());
-import cors from 'cors';
-
-// Permitir credenciales y el header Authorization desde el frontend local
-const corsOptions = {
-  origin: 'http://localhost:5173',
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
-};
-
-app.use(cors(corsOptions));
 app.use(morgan("dev"));
 app.use("/auth", authRoutes); 
 app.use("/profile", profileRoutes);

@@ -13,14 +13,12 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
-            // la API envuelve la respuesta en { message, data, status }
-            const { token, user } = response.data.data || {};
-            // el contexto espera (token, user)
-            login(token, user);
+            const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
+            const { token, user } = response.data;
+            
+            login({ token, user });
             console.log('Inicio de sesión exitoso:', user);
-            // la ruta en el router está definida como '/home' (minúsculas)
-            navigate('/home');
+            navigate('/Home');
         } catch (error) {
             console.error('Error al iniciar sesión:', error);
         }
@@ -70,8 +68,7 @@ const Login = () => {
                         Iniciar sesión
                     </button>
                     <button 
-                        type="button" 
-                        onClick={() => navigate('/register')}
+                        type="register" 
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
                     >
                         Registrarse

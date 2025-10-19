@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import cookies from 'js-cookie';
 
 const AuthContext = createContext();
@@ -28,34 +29,10 @@ export const AuthProvider = ({ children }) => {
     const token = cookies.get('jwt-auth');
     const storedUser = sessionStorage.getItem('usuario');
     
-    // helper para decodificar JWT sin depender de jwt-decode (evita problemas ESM/CJS con Vite)
-    const decodeJWT = (tkn) => {
-      try {
-        const parts = tkn.split('.');
-        if (parts.length !== 3) return null;
-        const base64Url = parts[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const pad = base64.length % 4;
-        const padded = pad ? base64 + '='.repeat(4 - pad) : base64;
-        // atob en navegador decodifica base64
-        const jsonPayload = decodeURIComponent(atob(padded).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (err) {
-        return null;
-      }
-    };
-
     if (token && storedUser) {
       try {
-        const decoded = decodeJWT(token);
-        if (!decoded) {
-          // no se pudo decodificar, limpiar
-          throw new Error('Token inválido');
-        }
-        // si el token ya expiró (exp*1000 < ahora) entonces hacer logout
-        if (decoded.exp * 1000 < Date.now()) {
+        const decoded = jwtDecode(token);
+        if (decoded.exp * 1000 > Date.now()) {
           logout();
         }
       } catch (error) {

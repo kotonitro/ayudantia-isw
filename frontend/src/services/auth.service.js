@@ -29,7 +29,11 @@ export async function register(data) {
             password
         });
         return response.data;
+        
     } catch (error) {
+        if (error.response?.status === 409) {
+            return { message: 'Conflicto: El usuario ya existe' };
+        }
         return error.response?.data || { message: 'Error al conectar con el servidor' };
     }
 }
