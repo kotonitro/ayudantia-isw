@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     if (token && storedUser) {
       try {
         const decoded = jwtDecode(token);
-        if (decoded.exp * 1000 > Date.now()) {
+        if (decoded.exp * 1000 < Date.now()) {
           logout();
         }
       } catch (error) {

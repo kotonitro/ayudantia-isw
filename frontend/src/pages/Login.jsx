@@ -1,28 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
+import { login  } from '../services/auth.service';
 
 const Login = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login: loginContext } = useAuth(); // Renombrar para evitar conflicto
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const [error, setError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
-            const { token, user } = response.data.data;
-            
-            login(token, user);
-            console.log('Inicio de sesión exitoso:', user);
+        setError(null);
+
+        const response = await login({ email, password });
+        if (response.message.includes('correctamente') || response.status === 'Success') {
+            loginContext(response.data.token, response.data.user);
             navigate('/Home');
-        } catch (error) {
-            console.error('Error al iniciar sesión:', error);
+        } else {
+            setError(response.message || 'Error al iniciar sesión');
+            console.error('Error al iniciar sesión:', response);
         }
     };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 w-full max-w-md transform transition-all hover:scale-105">
@@ -30,6 +31,7 @@ const Login = () => {
                     <h1 className="text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 mb-8">
                         Iniciar sesión
                     </h1>
+                    {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
                     
                     <div className="space-y-2">
                         <label htmlFor="email" className="block text-sm font-semibold text-gray-700">

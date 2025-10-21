@@ -17,7 +17,7 @@ export async function login(dataUser) {
         
         return response.data;
     } catch (error) {
-        return error.response?.data || { message: 'Error al conectar con el servidor' };
+        return { message: error.response?.data?.message || "Error al conectar con el servidor"};
     }
 }
 
