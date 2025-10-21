@@ -14,9 +14,9 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
-            const { token, user } = response.data;
+            const { token, user } = response.data.data;
             
-            login({ token, user });
+            login(token, user);
             console.log('Inicio de sesión exitoso:', user);
             navigate('/Home');
         } catch (error) {
@@ -68,7 +68,8 @@ const Login = () => {
                         Iniciar sesión
                     </button>
                     <button 
-                        type="register" 
+                        type="button"
+                        onClick={() => navigate('/Register')}
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-purple-300"
                     >
                         Registrarse
