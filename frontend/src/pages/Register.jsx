@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { register } from '../services/auth.service.js';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -8,26 +8,20 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, { email, password });
-      setSuccess(res.data.message || 'Usuario creado correctamente');
-      // opcional: redirigir al login tras 1s
+    const response = await register({ email, password });
+
+    if (response.message.includes('correctamente') || response.status === 'Success') {
+      setSuccess(response.message || 'Usuario creado correctamente');
       setTimeout(() => navigate('/Login'), 1000);
-    } catch (err) {
-      if (err.response?.status === 409) {
-        setError('El email ya está registrado');
-      } else if (err.response?.data?.errorDetails) {
-        setError(err.response.data.errorDetails);
-      } else {
-        setError('Error al registrar usuario');
-      }
-      console.error('Error al registrar usuario:', err);
+    } else {
+      setError(response.message || 'Error al registrar usuario');
+      console.error('Error al registrar usuario:', response);
     }
   };
 

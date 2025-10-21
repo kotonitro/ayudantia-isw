@@ -28,7 +28,7 @@ const Home = () => {
       // logout local user and navigate to root
       logout();
       alert(res.message || 'Perfil eliminado correctamente');
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       setProfileData({ error: 'Error al eliminar perfil' });
     }
