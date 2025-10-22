@@ -1,6 +1,6 @@
-import { handleSuccess } from "../Handlers/responseHandlers.js";
+import { handleSuccess, handleErrorClient } from "../Handlers/responseHandlers.js";
 import { userRepository } from "../services/user.service.js";
-import { userValidation } from "../validations/user.validation.js";
+import { userUpdateValidation } from "../validations/profile.validation.js";
 import bcrypt from "bcrypt";
 
 export function getPublicProfile(req, res) {
@@ -33,34 +33,35 @@ export async function getPrivateProfile(req, res) {
 export async function updateProfile(req, res) {
   try {
     const userId = req.user.sub;
-    const { email, password } = req.body;
 
     // Validar solo los campos presentes
-    const { error } = userValidation.validate(
-      { email, password },
-      { presence: "optional" }
-    );
+  const { error } = userUpdateValidation.validate(
+    req.body, 
+    { presence: "optional", abortEarly: false } 
+  );
     if (error) {
       return res
         .status(400)
         .json({ message: "Datos inválidos", details: error.message });
     }
 
-    const user = await userRepository.findOneBy({ id: userId });
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-    if (email) user.email = email;
-    if (password) user.password = await bcrypt.hash(password, 10);
-    await userRepository.save(user);
-    return res
-      .status(200)
-      .json({ message: "Perfil actualizado correctamente" });
+  const { email, password } = req.body;
+
+  const user = await userRepository.findOneBy({ id: userId });
+  if (!user) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
+  if (email) user.email = email;
+  if (password) user.password = await bcrypt.hash(password, 10);
+  await userRepository.save(user);
+  return res
+    .status(200)
+    .json({ message: "Perfil actualizado correctamente" });
   } catch (error) {
     return res
       .status(500)
       .json({ message: "Error al actualizar perfil", error: error.message });
-  }
+}
 }
 
 export async function deleteProfile(req, res) {

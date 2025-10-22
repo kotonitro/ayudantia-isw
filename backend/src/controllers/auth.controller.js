@@ -1,13 +1,13 @@
 import { loginUser } from "../services/auth.service.js";
-import { createUser } from "../services/user.service.js";
+import { createUser} from "../services/user.service.js"
 import { handleSuccess, handleErrorClient, handleErrorServer } from "../Handlers/responseHandlers.js";
-import { userValidation } from "../validations/user.validation.js";
+import { userCreateValidation, loginValidation } from "../validations/profile.validation.js";
 
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
     
-    const { error } = userValidation.validate({ email, password });
+    const { error } = loginValidation.validate({ email, password });
     if (error) {
       return handleErrorClient(res, 400, "Parametros no validos", error.message);
     }
@@ -24,7 +24,7 @@ export async function register(req, res) {
   try {
     const data = req.body;
 
-    const { error } = userValidation.validate({
+    const { error } = userCreateValidation.validate({
       email: data.email,
       password: data.password,
     });
